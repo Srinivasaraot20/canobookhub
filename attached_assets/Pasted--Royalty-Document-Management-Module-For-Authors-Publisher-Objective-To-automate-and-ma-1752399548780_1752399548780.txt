@@ -1,0 +1,80 @@
+💰 Royalty & Document Management Module (For Authors & Publisher)
+
+🎯 Objective:
+
+To automate and manage author royalty, contracts, and important documents through the portal, accessible from respective dashboards.
+
+⸻
+
+✅ For Publisher (Super Admin)
+
+Access: Full Control Over Royalty & Document Management
+
+📄 Royalty Setup:
+	•	Set Royalty Percentage per book (e.g., 10%, 15%, etc.)
+	•	Add Royalty terms (per sale, per print, per edition)
+	•	Add/Edit royalty for each author/book
+	•	View total sales, royalty due, and paid history
+	•	Manually mark royalty payments as Paid / Pending
+	•	Export royalty reports (PDF/Excel)
+	•	Option to automate royalty based on book sales tracked
+
+📁 Document Management:
+	•	Upload & attach Author Contracts, NDA, Agreement Letters
+	•	Tag documents with book ID or author ID
+	•	Set expiry/renewal alerts
+	•	Secure PDF storage with download permissions
+	•	Grant access level (View only / Download / Editable)
+
+⸻
+
+✅ For Author Dashboard
+
+Access: Limited to Their Own Data
+
+💰 Royalty Section:
+	•	View all books with:
+	•	Sales Count (Monthly/Total)
+	•	Royalty % assigned
+	•	Earnings till date
+	•	Payments received
+	•	Next payout date
+	•	Download royalty reports
+	•	Raise query on payment (message publisher)
+
+📄 My Documents Section:
+	•	View/download official contracts (e.g., royalty agreement, MoU, etc.)
+	•	Upload documents (e.g., PAN card, Aadhaar, bank passbook, etc.)
+	•	Digital signature support (optional)
+	•	Notifications for document expiry or updates
+
+⸻
+
+📋 Additional Features (Optional for Future)
+	•	Auto Royalty Calculator (based on live book sales)
+	•	Royalty Payout Integration with RazorpayX or Bank API
+	•	Document e-Signing via platforms like Digio or SignDesk
+	•	Author Agreement Generator – generate pre-filled agreements from templates
+
+⸻
+
+🔐 Access Control (Security)
+	•	Only Publisher can edit or manage royalty/data
+	•	Author can only view and download his own data
+	•	Documents stored securely (e.g., AWS S3, Google Drive API)
+
+⸻
+
+📌 Add to Developer Brief:
+
+Add a Royalty Management Module where:
+	•	Publisher can define royalty % per book/author
+	•	Track sales and show calculated royalty
+	•	Mark payments as paid or pending
+	•	Author dashboard should show royalty stats, earnings, reports
+
+Add a Document Manager where:
+	•	Publisher uploads contracts, MoUs, agreements
+	•	Author can view/download only their documents
+	•	Documents are tagged to author/book and securely stored
+	•	Option for uploading PAN, Aadhaar, Bank details by author

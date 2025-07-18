@@ -1,0 +1,125 @@
+🏠 1. Public Website Features
+🔍 Browse Books by:
+
+Category, Author, Language, Rating, Price, Latest, Popular
+
+💬 User Feedback & Reviews
+
+Leave reviews and star ratings
+
+View all reviews on each book
+
+🎯 Smart Book Suggestions
+
+Based on category, past purchases, or viewed books
+
+🔎 Advanced Filters & Sorting
+
+Filters: Genre, Price Range, Language, Stock Status
+
+Sort by: Newest, Rating, Price, Popularity
+
+📄 Book Detail Page
+
+Cover image, full description, author profile link, price, reviews
+
+"Related Books" section
+
+🧑‍🎓 Author Pages
+
+Photo, bio, social links, awards, list of books
+
+🔐 2. Authentication Module
+✅ Login using:
+
+Email or Username + Password
+
+🔑 Secure Registration for:
+
+Readers/Users
+
+Authors
+
+Publishers
+
+🔁 Password Reset and Email Verification
+
+🔐 JWT or Flask-Login-based session management
+
+👤 3. User Dashboard (Student/Reader)
+🛒 Manage Cart (add/update/remove items)
+
+🧾 Place Orders & View My Orders
+
+"View Details" includes:
+
+Book list, payment info, order status, tracking info
+
+Cancel order with reason (stored in DB)
+
+💬 Submit and manage feedback
+
+❤️ Wishlist/Favorites
+
+✏️ Update profile info (name, email, address, password)
+
+🧑‍💼 View Author Bios
+
+🧑‍💼 4. Author Dashboard
+Feature	Description
+🔐 Author Registration	Sign up with email, create secure profile
+📄 Profile Management	Edit profile photo, bio, social links
+📚 Upload Manuscript	Upload book for approval (PDF/info form)
+🗂️ Book Listings	View list of their published/approved books
+📈 Sales/Royalty Reports	Monthly breakdown (if enabled by publisher)
+✏️ Edit Book Info	Update their own book descriptions (on approval)
+
+🏢 5. Publisher Dashboard (Advanced)
+Feature	Description
+🧾 Approve Manuscripts	Review and approve submitted books by authors
+📊 Track Sales	View all book sales, analytics, and trends
+🔄 Manage Inventory	Update stock, pricing, and availability
+📂 Bulk Upload Books	Upload Excel Sheet (.xlsx or .csv) of 100+ books
+📦 Add/Remove Books	Full CRUD on books and categories
+🧾 View Author Contracts	Download contracts, manage royalties
+
+🛠️ 6. Admin Dashboard (Super Admin)
+Feature	Description
+🧑‍💼 Full User Access	View and login as any user/author/publisher
+📦 Manage All Books	Add/edit/delete books with images, categories
+🗃️ Bulk Book Upload	Upload Excel sheet with book info and cover links
+👥 Manage Users	Ban, reset password, or promote users
+🏷️ Category Management	Add/remove/edit categories or genres
+📈 Site Analytics	View visits, top-selling books, search trends
+📥 Feedback Moderation	Approve/delete user reviews if flagged
+📢 Notification Panel	Push alerts or system announcements
+🔒 Security Logs	Login history, activity tracking
+
+📂 Book Upload via Excel Format (Admin or Publisher):
+Excel Template Includes:
+
+mathematica
+Copy
+Edit
+Title | ISBN | Author | Publisher | Price | Discount Price | Description | Category | Pages | Edition | Language | Stock | Image URL | Rating
+✅ Uploaded data will be validated, stored in the database, and book images will be fetched and displayed automatically.
+
+🧑‍🎓 User Types and Access Levels:
+Role	Access
+Reader/User	Browse, review, purchase, manage orders
+Author	Submit manuscripts, view their books, earnings
+Publisher	Approve books, upload books, manage inventory
+Admin	Super-access to all accounts, data, and settings
+
+💡 Bonus Advanced Features:
+🔔 Real-time Notifications (new order, approval, sales)
+
+🧾 Invoicing and Auto Email Receipts
+
+📧 Contact Support or Live Chat
+
+🌐 Multilingual Book Display
+
+🛡️ CAPTCHA on login/registration
+
+🌙 Dark/Light Mode UI Toggle

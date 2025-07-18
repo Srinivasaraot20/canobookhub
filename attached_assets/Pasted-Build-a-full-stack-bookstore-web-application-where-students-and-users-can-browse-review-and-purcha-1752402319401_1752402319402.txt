@@ -1,0 +1,115 @@
+Build a full-stack bookstore web application where students and users can browse, review, and purchase books. The system should support user feedback, dynamic book recommendations, profile management, shopping cart, order tracking, and admin features for content management.
+
+✅ Core Features:
+🧑‍💻 1. User/Student Feedback System:
+Each book page includes a feedback form where users/students can submit their comments or reviews.
+
+Feedback is stored in a database (SQLite / MySQL / PostgreSQL).
+
+All feedback is displayed publicly under each book for other users to see.
+
+Admin panel to moderate/delete feedback if needed.
+
+📚 2. Smart Book Recommendation Engine:
+When a user visits a book detail page, show related books based on:
+
+Category
+
+Author
+
+Keywords in title or description
+
+User preferences or browsing history
+
+🎯 3. Advanced Filtering & Sorting:
+Filters for:
+
+Category, Author, Price Range, Rating, Language, Edition, Availability
+
+Sorting by:
+
+Popularity
+
+Newest arrivals
+
+Lowest/highest price
+
+Rating
+
+🖼️ 4. Author Page with Image and Details:
+Create a dedicated author profile page for each author with:
+
+Biography (fetched from the internet or curated)
+
+Image
+
+List of books by the author
+
+Awards or recognitions
+
+📷 5. Add 20+ Books with Unique Images:
+Use real book data or mock data.
+
+Each book should include:
+
+Title, ISBN, Description, Price, Discount Price, Category, Pages, Edition, Language, Stock Quantity, Author, Image URL, Rating, Reviews
+
+👤 6. User Profile Management:
+Allow users to:
+
+Edit profile details (name, email, address, etc.)
+
+Change password
+
+View their purchase history and feedback
+
+🛒 7. Shopping Cart - Advanced Features:
+Add/update/remove items from the cart
+
+Show total price dynamically
+
+Quantity management per item
+
+Guest cart support (stored in localStorage)
+
+Auto-merge with user cart after login
+
+📦 8. My Orders + View Order Details:
+Users can:
+
+View all past and current orders
+
+Click View Details to see:
+
+Book list
+
+Delivery status
+
+Order date/time
+
+Shipment provider
+
+Tracking info
+
+Cancel reason (if canceled)
+
+Allow order cancellation with reason (stored in DB)
+
+Admin can change order status and assign tracking numbers
+
+🌟 Optional Advanced Features:
+Wishlist/Favorites system
+
+Live chat support integration
+
+Push/email notifications on order status updates
+
+Admin dashboard for:
+
+Adding/editing books
+
+Managing authors
+
+Viewing feedback
+
+Managing users/orders

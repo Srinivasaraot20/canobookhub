@@ -1,0 +1,65 @@
+The Admin Account Interface must be enhanced to fully reflect and support advanced management functionalities across the system. The following key improvements are required:
+
+🔧 1. Navigation Bar Enhancements
+Update the navigation bar to accurately display all advanced features, including:
+
+Bulk Upload Books (ensure it's visible to admin and correctly named)
+
+Manage Books with complete functionality
+
+Manage Users, Manage Categories, Manage Orders
+
+Analytics Dashboard, Review Moderation, and Notification Panel
+
+Advanced Search functionality
+
+Remove Authors and Wishlist from the admin's navigation view, as they are not relevant to admin operations.
+
+📚 2. Manage Books – Full Action Support
+Ensure the Manage Books section supports all three admin actions:
+
+View – Should open the detailed book information without error.
+
+Edit – Allow admins to update book details.
+
+Delete – Securely remove a book from the system.
+
+Fix the 500 Internal Server Error that occurs when clicking View. This should properly render book details or show a meaningful message if data is missing.
+
+📂 3. Bulk Upload Books
+Ensure the "Bulk Upload Books" option is visible and accessible in the admin dashboard.
+
+Rename it to exactly: Bulk Upload Books.
+
+Provide a downloadable Excel/CSV template for uploading multiple books. The template must include the following columns:
+
+mathematica
+Copy
+Edit
+Title | ISBN | Author | Publisher | Price | Discount Price | Description | Category | Pages | Edition | Language | Stock Quantity | Image URL | Rating
+📦 4. Manage Orders – Visibility & Action Fixes
+Fix the content rendering issue in the Manage Orders page — all order details must be visible.
+
+Enable functional action buttons (View, Update Status, Cancel, etc.) to allow full control over customer orders.
+
+👥 5. Manage Users – Error Resolution
+Resolve the 500 Internal Server Error occurring in the Manage Users section.
+
+Enable full functionality:
+
+View and manage user profiles
+
+Promote/demote roles
+
+Deactivate or reset accounts
+
+View order/feedback history of users
+
+🛠️ 6. Image-Based Features – Ensure Functional Integration
+Activate and integrate image features that support:
+
+Display of author photos on author pages
+
+Display of book cover images in book listings, orders, and suggestions
+
+Ensure broken or missing images are replaced with a default placeholder.

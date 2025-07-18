@@ -1,0 +1,103 @@
+📘 Book Publication Website — Project Outline
+
+🔰 Project Goal:
+
+To build a book publication and sales website with multi-role login (4 logins) where:
+	•	Books can be uploaded by the Publisher (Super Admin)
+	•	Books are authored by registered Authors
+	•	Vendors/Distributors can view stock & sell
+	•	Students/Buyers can browse and purchase books
+
+⸻
+
+🖥 Frontend (Public Pages for All Users)
+	1.	Homepage
+	•	Banner + Featured Books
+	•	Search bar with filters (Exam, Author, Publisher)
+	•	Categories: UPSC, SSC, NEET, JEE, etc.
+	•	Sections: New Arrivals, Top Authors, Bestsellers
+	2.	Books Listing Page
+	•	Filters: Exam | Author | Publisher | Subject
+	•	Sorting: Price | Newest | Bestseller
+	•	Book card with:
+	•	Cover Image
+	•	Title
+	•	Author, Publisher
+	•	Price
+	•	Add to Cart/View More
+	3.	Book Details Page
+	•	Description, Key Features, Author Bio
+	•	Price, Pages, Edition
+	•	Buy Now / Add to Cart
+	4.	Authors Page
+	•	List of all authors
+	•	Click on any → View their profile & books
+	5.	Login/Register
+	•	4 Roles to choose from:
+	•	Publisher (Super Admin)
+	•	Author
+	•	Vendor / Distributor / Shopkeeper
+	•	Student / Buyer
+	6.	Cart & Checkout Page
+	•	Add books to cart
+	•	Payment Gateway (Razorpay / Paytm)
+	•	Delivery Address
+	•	Order Confirmation
+
+⸻
+
+🔐 Login-Based Roles & Dashboards
+
+1. 👑 Publisher (Super Admin)
+	•	Full control over platform
+	•	Add / Edit / Delete any book
+	•	Add & manage Authors and Vendors
+	•	View sales reports by author, vendor, and book
+	•	Set pricing, discounts, stock levels
+	•	Upload new books (PDF/Print with meta info)
+	•	Control homepage banners, featured books, etc.
+	•	Royalty management for authors
+
+2. 🧑‍💼 Author Dashboard
+	•	Register and create profile
+	•	Upload manuscript or book info (goes for publisher approval)
+	•	View their book listings
+	•	View royalty and sales stats (if enabled)
+	•	Edit bio, profile photo, social links
+
+3. 🏬 Vendor / Distributor / Shopkeeper
+	•	View available books for bulk purchase
+	•	Purchase at wholesale/vendor price
+	•	Track order status
+	•	Sales dashboard (only their stock sold)
+	•	View stock availability
+
+4. 🎓 Student / Book Buyer
+	•	Browse & search books
+	•	Add to cart & checkout
+	•	View order history
+	•	Rate/review books
+	•	Wishlist / Save books
+
+⸻
+
+📦 Core Features & Modules
+
+🔎 Book Listing
+	•	Name, Exam Type, Author, Publisher
+	•	Price, Stock, Book Cover, Sample Preview
+
+📑 Author Profile Page
+	•	Public bio
+	•	List of all books written
+
+💼 Admin Tools
+	•	Dashboard (Stats)
+	•	Manage Users (Add/Edit/Delete)
+	•	Manage Orders
+	•	Track Revenue
+
+💳 Payment & Order
+	•	Razorpay or Paytm gateway
+	•	Auto email/SMS confirmation
+	•	Order management (for users + vendor + admin)
