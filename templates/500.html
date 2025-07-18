@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Internal Server Error - CanoBookHub{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h1 class="display-1 text-danger">500</h1>
+                    <h2 class="mb-4">Internal Server Error</h2>
+                    <p class="lead">Something went wrong on our end. We apologize for the inconvenience.</p>
+                    <div class="mt-4">
+                        <a href="{{ url_for('index') }}" class="btn btn-primary me-2">
+                            <i class="fas fa-home"></i> Go Home
+                        </a>
+                        <a href="javascript:history.back()" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Go Back
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

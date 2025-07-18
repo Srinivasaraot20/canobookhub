@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Profile & Bio - Author Dashboard{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="fw-bold mb-4">👤 Profile & Bio</h2>
+  <form method="POST" enctype="multipart/form-data" class="card p-4 shadow-sm" style="max-width:600px;">
+    <div class="mb-3 text-center">
+      <img src="{{ url_for('static', filename='uploads/' ~ user.profile_image) if user.profile_image else url_for('static', filename='img/default_profile.png') }}" class="rounded-circle mb-2" width="100" height="100" alt="Profile Picture">
+      <input type="file" class="form-control" name="profile_image" accept="image/*">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Full Name</label>
+      <input type="text" class="form-control" name="full_name" value="{{ user.full_name }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Pen Name</label>
+      <input type="text" class="form-control" name="pen_name" value="{{ user.username }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Short Bio</label>
+      <textarea class="form-control" name="bio" rows="4">{{ user.bio }}</textarea>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">LinkedIn</label>
+      <input type="url" class="form-control" name="linkedin" value="{{ user.linkedin }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Website</label>
+      <input type="url" class="form-control" name="website" value="{{ user.website }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Instagram</label>
+      <input type="url" class="form-control" name="instagram" value="{{ user.instagram }}">
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+  </form>
+</div>
+{% endblock %} 

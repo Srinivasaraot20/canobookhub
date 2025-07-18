@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Author Dashboard - CanoBookHub{% endblock %}
+
+{% block content %}
+{% if current_user.role == 'author' %}
+<div class="container-fluid px-0">
+  <div class="row min-vh-100">
+    <!-- Sidebar -->
+    <nav class="col-12 col-md-3 col-lg-2 d-md-block bg-white sidebar shadow-sm p-0 border-end">
+      <div class="position-sticky pt-4">
+        <ul class="nav flex-column">
+          <li class="nav-item mb-2">
+            <a class="nav-link active fw-bold" href="{{ url_for('author_dashboard') }}"><span class="me-2">📊</span> Dashboard</a>
+          </li>
+          <li class="nav-item mb-2">
+            <a class="nav-link" href="{{ url_for('author_books') }}"><span class="me-2">📚</span> My Published Books</a>
+          </li>
+          <li class="nav-item mb-2">
+            <a class="nav-link" href="{{ url_for('add_book') }}"><span class="me-2">➕</span> Upload New Book</a>
+          </li>
+          <li class="nav-item mb-2">
+            <a class="nav-link" href="{{ url_for('author_royalties') }}"><span class="me-2">📈</span> Sales & Royalties</a>
+          </li>
+          <li class="nav-item mb-2">
+            <a class="nav-link" href="{{ url_for('author_reviews') }}"><span class="me-2">⭐</span> Reader Reviews</a>
+          </li>
+          <li class="nav-item mb-2">
+            <a class="nav-link" href="{{ url_for('author_profile') }}"><span class="me-2">👤</span> Profile & Bio</a>
+          </li>
+          <li class="nav-item mt-4">
+            <a class="nav-link text-danger" href="{{ url_for('logout') }}"><span class="me-2">🚪</span> Logout</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <!-- Main Content -->
+    <main class="col-12 col-md-9 col-lg-10 ms-sm-auto px-4 py-5 bg-light">
+      <h2 class="fw-bold mb-4">Welcome back, {{ current_user.full_name }}!</h2>
+      <div class="mb-4">
+        <a href="{{ url_for('author_analytics_dashboard') }}" class="btn btn-info btn-lg">
+          <i class="fas fa-chart-line"></i> View Analytics Dashboard
+        </a>
+      </div>
+      <!-- Stat Cards Grid -->
+      <div class="row g-4">
+        <!-- Total Books Published -->
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="card shadow-sm rounded-4 h-100 border-0">
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+              <div class="mb-2"><i class="fas fa-book fa-2x text-primary"></i></div>
+              <h3 class="fw-bold mb-0">{{ total_books }}</h3>
+              <p class="text-muted">Total Books Published</p>
+            </div>
+          </div>
+        </div>
+        <!-- Drafts & Pending Reviews -->
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="card shadow-sm rounded-4 h-100 border-0">
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+              <div class="mb-2"><i class="fas fa-edit fa-2x text-warning"></i></div>
+              <h3 class="fw-bold mb-0">{{ drafts_count }}</h3>
+              <p class="text-muted">Drafts & Pending Reviews</p>
+            </div>
+          </div>
+        </div>
+        <!-- Total Royalties Earned -->
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="card shadow-sm rounded-4 h-100 border-0">
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+              <div class="mb-2"><i class="fas fa-rupee-sign fa-2x text-success"></i></div>
+              <h3 class="fw-bold mb-0">₹{{ royalties_earned }}</h3>
+              <p class="text-muted">Total Royalties Earned</p>
+            </div>
+          </div>
+        </div>
+        <!-- Book Sales (Last 30 days) -->
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="card shadow-sm rounded-4 h-100 border-0">
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+              <div class="mb-2"><i class="fas fa-chart-line fa-2x text-info"></i></div>
+              <h3 class="fw-bold mb-0">{{ sales_last_30_days }}</h3>
+              <p class="text-muted">Book Sales (Last 30 days)</p>
+            </div>
+          </div>
+        </div>
+        <!-- Book Reviews -->
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="card shadow-sm rounded-4 h-100 border-0 card-hover">
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+              <div class="mb-2"><i class="fas fa-star fa-2x text-warning"></i></div>
+              <h3 class="fw-bold mb-0">{{ reviews_count or 0 }}</h3>
+              <p class="text-muted">Book Reviews</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End Stat Cards Grid -->
+    </main>
+  </div>
+</div>
+{% else %}
+  <div class="container py-5"><div class="alert alert-danger">Access denied.</div></div>
+{% endif %}
+{% endblock %}

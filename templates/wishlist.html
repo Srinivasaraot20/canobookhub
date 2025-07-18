@@ -1,0 +1,67 @@
+
+{% extends "base.html" %}
+
+{% block title %}My Wishlist - CanoBookHub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">My Wishlist</h1>
+    
+    {% if wishlist_items %}
+        <div class="row g-4">
+            {% for item in wishlist_items %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    {% if item.book.cover_image %}
+                    <img src="{{ url_for('static', filename='uploads/' + item.book.cover_image) }}" 
+                         class="card-img-top" alt="{{ item.book.title }}" style="height: 300px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
+                        <i class="fas fa-book fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ item.book.title }}</h5>
+                        <p class="text-muted mb-2">by {{ item.book.author.full_name if item.book.author else 'Unknown' }}</p>
+                        
+                        <div class="mb-2">
+                            <span class="text-primary h5">₹{{ item.book.price }}</span>
+                            {% if item.book.discount_price and item.book.discount_price < item.book.price %}
+                            <span class="text-muted text-decoration-line-through ms-2">₹{{ item.book.discount_price }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {% for i in range(1, 6) %}
+                                {% if i <= item.book.avg_rating %}
+                                    <i class="fas fa-star text-warning"></i>
+                                {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <small class="text-muted">({{ item.book.total_reviews }} reviews)</small>
+                        </div>
+                        
+                        <div class="mt-auto">
+                            <div class="d-grid gap-2">
+                                <a href="{{ url_for('book_detail', book_id=item.book.id) }}" class="btn btn-outline-primary">View Details</a>
+                                <a href="{{ url_for('add_to_cart', book_id=item.book.id) }}" class="btn btn-primary">Add to Cart</a>
+                                <a href="{{ url_for('remove_from_wishlist', book_id=item.book.id) }}" class="btn btn-outline-danger btn-sm">Remove from Wishlist</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-heart fa-3x text-muted mb-3"></i>
+            <h3>Your wishlist is empty</h3>
+            <p class="text-muted mb-4">Start adding books you'd like to read later!</p>
+            <a href="{{ url_for('books') }}" class="btn btn-primary">Browse Books</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

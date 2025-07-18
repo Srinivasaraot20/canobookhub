@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Analytics Dashboard - Author{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="fw-bold mb-4"><i class="fas fa-chart-line"></i> Analytics Dashboard</h2>
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Book Performance</h5>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Book Title</th>
+                  <th>Views</th>
+                  <th>Sales</th>
+                  <th>Avg. Rating</th>
+                  <th>Total Reviews</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for book in books %}
+                <tr>
+                  <td>{{ book.title }}</td>
+                  <td>{{ book.view_count }}</td>
+                  <td>{{ book.sales_count or 0 }}</td>
+                  <td>{{ book.avg_rating }}</td>
+                  <td>{{ book.total_reviews }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Review Trends</h5>
+          <canvas id="reviewTrendsChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Average Ratings Over Time</h5>
+          <canvas id="avgRatingsChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const reviewTrendsData = {{ review_trends|tojson }};
+const avgRatingsData = {{ avg_ratings|tojson }};
+const reviewTrendsCtx = document.getElementById('reviewTrendsChart').getContext('2d');
+const avgRatingsCtx = document.getElementById('avgRatingsChart').getContext('2d');
+new Chart(reviewTrendsCtx, {
+  type: 'line',
+  data: {
+    labels: reviewTrendsData.labels,
+    datasets: [{
+      label: 'Reviews',
+      data: reviewTrendsData.data,
+      borderColor: '#007bff',
+      backgroundColor: 'rgba(0,123,255,0.1)',
+      fill: true
+    }]
+  },
+  options: { responsive: true }
+});
+new Chart(avgRatingsCtx, {
+  type: 'line',
+  data: {
+    labels: avgRatingsData.labels,
+    datasets: [{
+      label: 'Avg. Rating',
+      data: avgRatingsData.data,
+      borderColor: '#ffc107',
+      backgroundColor: 'rgba(255,193,7,0.1)',
+      fill: true
+    }]
+  },
+  options: { responsive: true, scales: { y: { min: 0, max: 5 } } }
+});
+</script>
+{% endblock %} 

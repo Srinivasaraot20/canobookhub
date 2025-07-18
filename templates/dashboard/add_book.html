@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Add Book - CanoBookHub{% endblock %}
+
+{% block content %}
+{% if current_user.role == 'author' %}
+<div class="container py-5">
+    <h1 class="mb-4">Upload New Book</h1>
+    <form method="POST" enctype="multipart/form-data" id="book-upload-form">
+        {{ form.hidden_tag() }}
+        <!-- Basic Book Info -->
+        <div class="card mb-4">
+            <div class="card-header fw-bold">Basic Book Info</div>
+            <div class="card-body row g-3">
+                <div class="col-md-6 mb-3">
+                  <label for="category-input" class="form-label fs-5 text-dark mb-2">Category/Genre</label>
+                  <input id="category-input" name="category" class="form-control" placeholder="Type or select categories" multiple>
+                </div>
+                <div class="col-md-6 mb-3">{{ form.title.label(class="form-label fs-5 text-dark mb-2") }}{{ form.title(class="form-control") }}</div>
+                <div class="col-md-6 mb-3">{{ form.isbn.label(class="form-label fs-5 text-dark mb-2") }}{{ form.isbn(class="form-control") }}</div>
+                <div class="col-md-6 mb-3">{{ form.tags.label(class="form-label fs-5 text-dark mb-2") }}{{ form.tags(class="form-control") }}</div>
+                <div class="col-md-6 mb-3">{{ form.language.label(class="form-label fs-5 text-dark mb-2") }}{{ form.language(class="form-control") }}</div>
+                <div class="col-md-6 mb-3">{{ form.edition.label(class="form-label fs-5 text-dark mb-2") }}{{ form.edition(class="form-control") }}</div>
+                <div class="col-md-6 mb-3">{{ form.pages.label(class="form-label fs-5 text-dark mb-2") }}{{ form.pages(class="form-control", id="pages-input") }}</div>
+                <div class="col-md-6 mb-3">{{ form.est_reading_time.label(class="form-label fs-5 text-dark mb-2") }}{{ form.est_reading_time(class="form-control", readonly=True, id="reading-time") }}</div>
+                <div class="col-12 mb-3">{{ form.description.label(class="form-label fs-5 text-dark mb-2") }}{{ form.description(class="form-control", rows=3) }}</div>
+            </div>
+        </div>
+        <!-- Media Upload -->
+        <div class="card mb-4">
+            <div class="card-header fw-bold">Media Upload</div>
+            <div class="card-body row g-3">
+                <div class="col-md-6">
+                    {{ form.cover_image.label(class="form-label") }}
+                    <div class="mb-2">
+                        <input type="file" id="cover-image-input" name="cover_image" accept="image/*" class="form-control" style="display:none;">
+                        <div id="cover-drop" class="border rounded d-flex align-items-center justify-content-center" style="height:180px; cursor:pointer; background:#f8f9fa;">
+                            <span id="cover-preview-text">Drag & Drop or Click to Upload Cover</span>
+                            <img id="cover-preview" src="#" alt="Cover Preview" style="display:none; max-height:160px; max-width:100%;"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    {{ form.manuscript_file.label(class="form-label") }}
+                    <input type="file" id="manuscript-input" name="manuscript_file" accept=".pdf,.epub,.docx" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    {{ form.sample_chapter.label(class="form-label") }}
+                    <input type="file" name="sample_chapter" accept=".pdf,.epub,.docx" class="form-control">
+                </div>
+            </div>
+        </div>
+        <!-- Author Section -->
+        <div class="card mb-4">
+            <div class="card-header fw-bold">Author Section</div>
+            <div class="card-body row g-3">
+                <div class="col-md-6">{{ form.pen_name.label(class="form-label") }}{{ form.pen_name(class="form-control") }}</div>
+                <div class="col-md-6">{{ form.co_authors.label(class="form-label") }}{{ form.co_authors(class="form-control") }}</div>
+                <div class="col-12">{{ form.author_bio.label(class="form-label") }}{{ form.author_bio(class="form-control", rows=2) }}</div>
+            </div>
+        </div>
+        <!-- Pricing & Availability -->
+        <div class="card mb-4">
+            <div class="card-header fw-bold">Pricing & Availability</div>
+            <div class="card-body row g-3">
+                <div class="col-md-4">{{ form.price.label(class="form-label") }}{{ form.price(class="form-control") }}</div>
+                <div class="col-md-4">{{ form.discount_price.label(class="form-label") }}{{ form.discount_price(class="form-control") }}</div>
+                <div class="col-md-4">{{ form.royalty_preference.label(class="form-label") }}{{ form.royalty_preference(class="form-select") }}</div>
+                <div class="col-md-4 d-flex align-items-center">{{ form.is_free() }} {{ form.is_free.label(class="form-check-label ms-2") }}</div>
+                <div class="col-md-4">{{ form.schedule_publication.label(class="form-label") }}{{ form.schedule_publication(class="form-control", type="datetime-local") }}</div>
+            </div>
+        </div>
+        <!-- Review & Ratings Settings -->
+        <div class="card mb-4">
+            <div class="card-header fw-bold">Review & Ratings Settings</div>
+            <div class="card-body row g-3">
+                <div class="col-md-6 d-flex align-items-center">{{ form.allow_reviews() }} {{ form.allow_reviews.label(class="form-check-label ms-2") }}</div>
+                <div class="col-md-6 d-flex align-items-center">{{ form.early_access_reviews() }} {{ form.early_access_reviews.label(class="form-check-label ms-2") }}</div>
+            </div>
+        </div>
+        <!-- Marketing Settings -->
+        <div class="card mb-4">
+            <div class="card-header fw-bold">Optional Marketing Settings</div>
+            <div class="card-body row g-3">
+                <div class="col-md-6">{{ form.featured() }} {{ form.featured.label(class="form-check-label ms-2") }}</div>
+                <div class="col-md-6">{{ form.trailer_link.label(class="form-label") }}{{ form.trailer_link(class="form-control") }}</div>
+                <div class="col-md-6">{{ form.social_preview.label(class="form-label") }}{{ form.social_preview(class="form-control") }}</div>
+                <div class="col-md-6">{{ form.promo_badges.label(class="form-label") }}{{ form.promo_badges(class="form-select", multiple=True) }}</div>
+            </div>
+        </div>
+        <!-- Version Control & Revisions -->
+        <div class="card mb-4">
+            <div class="card-header fw-bold">Version Control & Revisions</div>
+            <div class="card-body row g-3">
+                <div class="col-md-6">{{ form.version_number.label(class="form-label") }}{{ form.version_number(class="form-control") }}</div>
+                <div class="col-md-6">{{ form.changelog.label(class="form-label") }}{{ form.changelog(class="form-control", rows=2) }}</div>
+            </div>
+        </div>
+        <!-- Final Controls -->
+        <div class="d-flex gap-2 justify-content-end">
+            {{ form.save_as_draft(class="btn btn-secondary") }}
+            {{ form.preview(class="btn btn-outline-info") }}
+            {{ form.submit_for_review(class="btn btn-primary") }}
+        </div>
+    </form>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var categories = {{ categories|tojson|safe }};
+  var input = document.getElementById('category-input');
+  if (input) {
+    new Tagify(input, {
+      whitelist: categories,
+      dropdown: { enabled: 0 }
+    });
+  }
+  // Drag & Drop Cover Image Preview
+  const coverDrop = document.getElementById('cover-drop');
+  const coverInput = document.getElementById('cover-image-input');
+  const coverPreview = document.getElementById('cover-preview');
+  const coverPreviewText = document.getElementById('cover-preview-text');
+  if (coverDrop && coverInput && coverPreview && coverPreviewText) {
+    coverDrop.addEventListener('click', () => coverInput.click());
+    coverDrop.addEventListener('dragover', e => { e.preventDefault(); coverDrop.classList.add('bg-light'); });
+    coverDrop.addEventListener('dragleave', e => { e.preventDefault(); coverDrop.classList.remove('bg-light'); });
+    coverDrop.addEventListener('drop', e => {
+      e.preventDefault();
+      coverDrop.classList.remove('bg-light');
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        coverInput.files = e.dataTransfer.files;
+        showCoverPreview(file);
+      }
+    });
+    coverInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) showCoverPreview(file);
+    });
+    function showCoverPreview(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        coverPreview.src = e.target.result;
+        coverPreview.style.display = 'block';
+        coverPreviewText.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+  // Auto-calculate reading time
+  const pagesInput = document.getElementById('pages-input');
+  const readingTime = document.getElementById('reading-time');
+  if (pagesInput && readingTime) {
+    pagesInput.addEventListener('input', function() {
+      const pages = parseInt(this.value) || 0;
+      if (pages > 0) {
+        const minutes = Math.round(pages * 2); // 2 min/page estimate
+        readingTime.value = minutes + ' min';
+      } else {
+        readingTime.value = '';
+      }
+    });
+  }
+});
+</script>
+{% else %}
+<div class="container py-5"><div class="alert alert-danger">Access denied.</div></div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,179 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-4">
+            <img src="{{ url_for('static', filename='uploads/' + book.cover_image) if book.cover_image else 'https://via.placeholder.com/300x400?text=No+Cover' }}" 
+                 class="img-fluid rounded shadow" alt="{{ book.title }}">
+        </div>
+        <div class="col-md-8">
+            <h1>{{ book.title }}</h1>
+            
+            {% if book.author %}
+                <p class="lead">By: <a href="{{ url_for('author_detail', author_id=book.author.id) }}">{{ book.author.full_name }}</a></p>
+            {% endif %}
+            
+            <div class="mb-3">
+                {% if book.avg_rating > 0 %}
+                    <div class="d-flex align-items-center mb-2">
+                        {% for i in range(1, 6) %}
+                            {% if i <= book.avg_rating %}
+                                <i class="fas fa-star text-warning"></i>
+                            {% else %}
+                                <i class="far fa-star text-muted"></i>
+                            {% endif %}
+                        {% endfor %}
+                        <span class="ms-2">{{ book.avg_rating }}/5 ({{ book.total_reviews }} reviews)</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h3 class="text-primary">₹{{ "%.2f"|format(book.price) }}</h3>
+                    {% if book.wholesale_price and book.wholesale_price < book.price %}
+                        <small class="text-muted">Wholesale: ₹{{ "%.2f"|format(book.wholesale_price) }}</small>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    {% if book.stock > 0 %}
+                        <span class="badge bg-success">In Stock ({{ book.stock }})</span>
+                    {% else %}
+                        <span class="badge bg-danger">Out of Stock</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <p><strong>ISBN:</strong> {{ book.isbn or 'N/A' }}</p>
+                <p><strong>Category:</strong> {{ book.category or 'N/A' }}</p>
+                <p><strong>Language:</strong> {{ book.language }}</p>
+                <p><strong>Pages:</strong> {{ book.pages or 'N/A' }}</p>
+                <p><strong>Publisher:</strong> {{ book.publisher_name or 'N/A' }}</p>
+                {% if book.exam_type %}
+                    <p><strong>Exam Type:</strong> {{ book.exam_type }}</p>
+                {% endif %}
+            </div>
+
+            {% if book.description %}
+                <div class="mb-4">
+                    <h4>Description</h4>
+                    <p>{{ book.description }}</p>
+                </div>
+            {% endif %}
+
+            {% if current_user.is_authenticated and book.stock > 0 %}
+                <div class="mb-3">
+                    <a href="{{ url_for('add_to_cart', book_id=book.id) }}" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-cart-plus"></i> Add to Cart
+                    </a>
+                    
+                    {% if in_wishlist %}
+                        <a href="{{ url_for('remove_from_wishlist', book_id=book.id) }}" class="btn btn-outline-danger btn-lg">
+                            <i class="fas fa-heart"></i> Remove from Wishlist
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('add_to_wishlist', book_id=book.id) }}" class="btn btn-outline-primary btn-lg">
+                            <i class="far fa-heart"></i> Add to Wishlist
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3>Reviews</h3>
+            
+            {% if current_user.is_authenticated and not user_review %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5>Write a Review</h5>
+                        <form method="POST" action="{{ url_for('review_book', book_id=book.id) }}">
+                            <div class="mb-3">
+                                <label class="form-label">Rating</label>
+                                <select class="form-select" name="rating" required>
+                                    <option value="">Select Rating</option>
+                                    <option value="5">5 Stars - Excellent</option>
+                                    <option value="4">4 Stars - Good</option>
+                                    <option value="3">3 Stars - Average</option>
+                                    <option value="2">2 Stars - Poor</option>
+                                    <option value="1">1 Star - Terrible</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Comment</label>
+                                <textarea class="form-control" name="comment" rows="4"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% for review in reviews %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6>{{ review.user.full_name or review.user.username }}</h6>
+                                <div class="mb-2">
+                                    {% for i in range(1, 6) %}
+                                        {% if i <= review.rating %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-muted"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <p>{{ review.comment }}</p>
+                                <small class="text-muted">{{ review.created_at.strftime('%B %d, %Y') }}</small>
+                            </div>
+                            <div>
+                                {% if current_user.is_authenticated and current_user.id != review.user_id %}
+                                    <a href="{{ url_for('mark_review_helpful', review_id=review.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-thumbs-up"></i> Helpful ({{ review.helpful_votes }})
+                                    </a>
+                                    <a href="{{ url_for('flag_review', review_id=review.id) }}" class="btn btn-sm btn-outline-warning">
+                                        <i class="fas fa-flag"></i> Flag
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recommended Books -->
+    {% if recommended_books %}
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3>Recommended Books</h3>
+                <div class="row g-4">
+                    {% for rec_book in recommended_books %}
+                        <div class="col-md-2">
+                            <div class="card h-100">
+                                <img src="{{ url_for('static', filename='uploads/' + rec_book.cover_image) if rec_book.cover_image else 'https://via.placeholder.com/150x200?text=No+Cover' }}" 
+                                     class="card-img-top" alt="{{ rec_book.title }}">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ rec_book.title }}</h6>
+                                    <p class="card-text text-primary">₹{{ "%.2f"|format(rec_book.price) }}</p>
+                                    <a href="{{ url_for('enhanced_book_detail', book_id=rec_book.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

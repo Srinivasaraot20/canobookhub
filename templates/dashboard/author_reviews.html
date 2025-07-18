@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Reader Reviews - Author Dashboard{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="fw-bold mb-4">⭐ Reader Reviews</h2>
+  {% if reviews and reviews|length > 0 %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Book Title</th>
+            <th>Reviewer</th>
+            <th>Rating</th>
+            <th>Comment</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for review in reviews %}
+          <tr>
+            <td>{{ review.book.title }}</td>
+            <td>{{ review.user.username }}</td>
+            <td>
+              {% for i in range(review.rating) %}★{% endfor %}
+              {% for i in range(5 - review.rating) %}<span class="text-muted">★</span>{% endfor %}
+            </td>
+            <td>{{ review.comment }}
+              {% if review.reply %}
+                <div class="mt-2 p-2 bg-light border rounded"><strong>Your Reply:</strong> {{ review.reply }}</div>
+              {% endif %}
+            </td>
+            <td>{{ review.created_at.strftime('%Y-%m-%d') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="alert alert-info">No reviews found for your books yet.</div>
+  {% endif %}
+</div>
+{% endblock %} 

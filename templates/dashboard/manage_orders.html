@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Orders - CanoBookHub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Manage Orders</h1>
+        <div class="d-flex gap-2">
+            <select class="form-select" id="statusFilter">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+            <select class="form-select" id="paymentFilter">
+                <option value="">All Payments</option>
+                <option value="pending">Pending</option>
+                <option value="paid">Paid</option>
+                <option value="failed">Failed</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Order Number</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Items</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>
+                                <strong>{{ order.order_number }}</strong>
+                            </td>
+                            <td>
+                                <div>
+                                    <strong>{{ order.user.full_name }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ order.user.email }}</small>
+                                </div>
+                            </td>
+                            <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#orderItems{{ order.id }}">
+                                    {{ order.items|length }} items
+                                </button>
+                                
+                                <!-- Order Items Modal -->
+                                <div class="modal fade" id="orderItems{{ order.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Order Items - {{ order.order_number }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Book</th>
+                                                                <th>Quantity</th>
+                                                                <th>Price</th>
+                                                                <th>Total</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for item in order.items %}
+                                                            <tr>
+                                                                <td>{{ item.book.title }}</td>
+                                                                <td>{{ item.quantity }}</td>
+                                                                <td>₹{{ item.price }}</td>
+                                                                <td>₹{{ item.quantity * item.price }}</td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><strong>₹{{ order.total_amount }}</strong></td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if order.status == 'delivered' else 'warning' if order.status == 'shipped' else 'info' if order.status == 'confirmed' else 'danger' if order.status == 'cancelled' else 'secondary' }}">
+                                    {{ order.status.title() }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if order.payment_status == 'paid' else 'danger' if order.payment_status == 'failed' else 'warning' }}">
+                                    {{ order.payment_status.title() }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        Actions
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        {% if order.status == 'pending' %}
+                                            <li><a class="dropdown-item" href="{{ url_for('update_order_status', order_id=order.id, status='confirmed') }}">Confirm Order</a></li>
+                                        {% endif %}
+                                        {% if order.status == 'confirmed' %}
+                                            <li><a class="dropdown-item" href="{{ url_for('update_order_status', order_id=order.id, status='shipped') }}">Mark as Shipped</a></li>
+                                        {% endif %}
+                                        {% if order.status == 'shipped' %}
+                                            <li><a class="dropdown-item" href="{{ url_for('update_order_status', order_id=order.id, status='delivered') }}">Mark as Delivered</a></li>
+                                        {% endif %}
+                                        {% if order.status not in ['delivered', 'cancelled'] %}
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item text-danger" href="{{ url_for('update_order_status', order_id=order.id, status='cancelled') }}">Cancel Order</a></li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if not orders %}
+            <div class="text-center py-5">
+                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                <h4>No Orders Found</h4>
+                <p class="text-muted">Orders will appear here when customers start purchasing books.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Order Statistics Cards -->
+    <div class="row g-4 mt-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                    <h5>{{ orders|selectattr('status', 'equalto', 'pending')|list|length }}</h5>
+                    <p class="text-muted">Pending Orders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-check-circle fa-2x text-info mb-2"></i>
+                    <h5>{{ orders|selectattr('status', 'equalto', 'confirmed')|list|length }}</h5>
+                    <p class="text-muted">Confirmed Orders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-shipping-fast fa-2x text-primary mb-2"></i>
+                    <h5>{{ orders|selectattr('status', 'equalto', 'shipped')|list|length }}</h5>
+                    <p class="text-muted">Shipped Orders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-gift fa-2x text-success mb-2"></i>
+                    <h5>{{ orders|selectattr('status', 'equalto', 'delivered')|list|length }}</h5>
+                    <p class="text-muted">Delivered Orders</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter functionality
+    const statusFilter = document.getElementById('statusFilter');
+    const paymentFilter = document.getElementById('paymentFilter');
+    const tableRows = document.querySelectorAll('tbody tr');
+    
+    function filterOrders() {
+        const statusValue = statusFilter.value.toLowerCase();
+        const paymentValue = paymentFilter.value.toLowerCase();
+        
+        tableRows.forEach(row => {
+            const statusBadge = row.querySelector('td:nth-child(6) .badge');
+            const paymentBadge = row.querySelector('td:nth-child(7) .badge');
+            
+            const statusText = statusBadge ? statusBadge.textContent.toLowerCase() : '';
+            const paymentText = paymentBadge ? paymentBadge.textContent.toLowerCase() : '';
+            
+            const statusMatch = !statusValue || statusText.includes(statusValue);
+            const paymentMatch = !paymentValue || paymentText.includes(paymentValue);
+            
+            row.style.display = statusMatch && paymentMatch ? '' : 'none';
+        });
+    }
+    
+    statusFilter.addEventListener('change', filterOrders);
+    paymentFilter.addEventListener('change', filterOrders);
+});
+</script>
+{% endblock %}

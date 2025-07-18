@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Drafts & Revisions - Author Dashboard{% endblock %}
+
+{% block content %}
+{% if current_user.role == 'author' %}
+<div class="container py-5">
+  <h2 class="fw-bold mb-4">📝 Drafts & Revisions</h2>
+  {% if books and books|length > 0 %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Last Edited</th>
+            <th>Version</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for book in books %}
+          <tr>
+            <td>{{ book.title }}</td>
+            <td>
+              {% if book.status == 'draft' %}
+                <span class="badge bg-secondary">Draft</span>
+              {% elif book.status == 'under_review' %}
+                <span class="badge bg-warning text-dark">Under Review</span>
+              {% elif book.status == 'rejected' %}
+                <span class="badge bg-danger">Rejected</span>
+              {% endif %}
+            </td>
+            <td>{{ book.updated_at.strftime('%Y-%m-%d %H:%M') if book.updated_at else book.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ book.version_number or '1.0' }}</td>
+            <td>
+              <a href="{{ url_for('add_book', book_id=book.id) }}" class="btn btn-outline-primary btn-sm">Edit</a>
+              <a href="#" class="btn btn-outline-danger btn-sm">Delete</a>
+              {% if book.status == 'draft' %}
+                <a href="#" class="btn btn-outline-success btn-sm">Submit for Review</a>
+              {% endif %}
+              <a href="#" class="btn btn-outline-info btn-sm">Upload New Edition</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="alert alert-info mt-4">You have no draft books. Click <a href="{{ url_for('add_book') }}">‘Upload Book’</a> to start a new one.</div>
+  {% endif %}
+</div>
+{% else %}
+<div class="container py-5"><div class="alert alert-danger">Access denied.</div></div>
+{% endif %}
+{% endblock %} 

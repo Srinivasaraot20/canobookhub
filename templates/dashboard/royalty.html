@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block title %}Royalty Management - CanoBookHub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Royalty Management</h1>
+        {% if current_user.role == 'publisher' %}
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRoyaltyModal">
+                <i class="fas fa-plus"></i> Add Royalty Record
+            </button>
+        {% endif %}
+    </div>
+    
+    {% if current_user.role == 'author' %}
+        <!-- Author Royalty Summary -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-book fa-3x text-primary mb-3"></i>
+                        <h3>{{ royalty_records|length }}</h3>
+                        <p class="text-muted">Books with Royalty</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-chart-line fa-3x text-success mb-3"></i>
+                        <h3>{{ royalty_records|sum(attribute='sales_count') }}</h3>
+                        <p class="text-muted">Total Sales</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-dollar-sign fa-3x text-info mb-3"></i>
+                        <h3>₹{{ royalty_records|sum(attribute='total_earnings') }}</h3>
+                        <p class="text-muted">Total Earnings</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    
+    <div class="card">
+        <div class="card-header">
+            <h5>
+                {% if current_user.role == 'author' %}
+                    My Royalty Records
+                {% else %}
+                    All Royalty Records
+                {% endif %}
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Book Title</th>
+                            {% if current_user.role == 'publisher' %}
+                                <th>Author</th>
+                            {% endif %}
+                            <th>Royalty %</th>
+                            <th>Sales Count</th>
+                            <th>Total Earnings</th>
+                            <th>Paid Amount</th>
+                            <th>Pending Amount</th>
+                            <th>Last Payment</th>
+                            {% if current_user.role == 'publisher' %}
+                                <th>Actions</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for royalty in royalty_records %}
+                        <tr>
+                            <td>
+                                <strong>{{ royalty.book.title }}</strong>
+                                <br>
+                                <small class="text-muted">{{ royalty.book.exam_type or 'General' }}</small>
+                            </td>
+                            {% if current_user.role == 'publisher' %}
+                                <td>{{ royalty.author.full_name }}</td>
+                            {% endif %}
+                            <td>
+                                <span class="badge bg-primary">{{ royalty.percentage }}%</span>
+                            </td>
+                            <td>{{ royalty.sales_count }}</td>
+                            <td>₹{{ royalty.total_earnings }}</td>
+                            <td>₹{{ royalty.paid_amount }}</td>
+                            <td>
+                                {% set pending = royalty.total_earnings - royalty.paid_amount %}
+                                <span class="badge bg-{{ 'success' if pending == 0 else 'warning' }}">
+                                    ₹{{ pending }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if royalty.last_payment_date %}
+                                    {{ royalty.last_payment_date.strftime('%Y-%m-%d') }}
+                                {% else %}
+                                    <span class="text-muted">No payments yet</span>
+                                {% endif %}
+                            </td>
+                            {% if current_user.role == 'publisher' %}
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editRoyalty{{ royalty.id }}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        {% if royalty.total_earnings > royalty.paid_amount %}
+                                            <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#markPaid{{ royalty.id }}">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Edit Royalty Modal -->
+                                    <div class="modal fade" id="editRoyalty{{ royalty.id }}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Edit Royalty - {{ royalty.book.title }}</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <form method="POST" action="{{ url_for('update_royalty', royalty_id=royalty.id) }}">
+                                                    <div class="modal-body">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Royalty Percentage</label>
+                                                            <input type="number" name="percentage" class="form-control" value="{{ royalty.percentage }}" min="0" max="100" step="0.1" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-primary">Update</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Mark as Paid Modal -->
+                                    <div class="modal fade" id="markPaid{{ royalty.id }}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Mark Payment - {{ royalty.book.title }}</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <form method="POST" action="{{ url_for('mark_royalty_paid', royalty_id=royalty.id) }}">
+                                                    <div class="modal-body">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Payment Amount</label>
+                                                            <input type="number" name="amount" class="form-control" value="{{ royalty.total_earnings - royalty.paid_amount }}" min="0" step="0.01" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Payment Date</label>
+                                                            <input type="date" name="payment_date" class="form-control" value="{{ moment().format('YYYY-MM-DD') }}" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-success">Mark as Paid</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if not royalty_records %}
+            <div class="text-center py-5">
+                <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                <h4>No Royalty Records Found</h4>
+                <p class="text-muted">
+                    {% if current_user.role == 'author' %}
+                        Royalty records will appear here when your books are sold.
+                    {% else %}
+                        Add royalty records for authors to track their earnings.
+                    {% endif %}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if current_user.role == 'author' %}
+        <!-- Royalty Chart -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Earnings Over Time</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="royaltyChart" height="100"></canvas>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+{% if current_user.role == 'publisher' %}
+    <!-- Add Royalty Modal -->
+    <div class="modal fade" id="addRoyaltyModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Royalty Record</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="{{ url_for('royalty') }}">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Book</label>
+                            <select name="book_id" class="form-select" required>
+                                <option value="">Select a book...</option>
+                                {% for book in books %}
+                                    <option value="{{ book.id }}">{{ book.title }} - {{ book.author.full_name if book.author else 'No Author' }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Author</label>
+                            <select name="author_id" class="form-select" required>
+                                <option value="">Select an author...</option>
+                                {% for author in authors %}
+                                    <option value="{{ author.id }}">{{ author.full_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Royalty Percentage</label>
+                            <input type="number" name="percentage" class="form-control" min="0" max="100" step="0.1" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Royalty</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+{% if current_user.role == 'author' %}
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('royaltyChart').getContext('2d');
+    const royaltyData = {{ royalty_records|tojson }};
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: royaltyData.map(r => r.book.title),
+            datasets: [{
+                label: 'Total Earnings',
+                data: royaltyData.map(r => r.total_earnings),
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.1
+            }, {
+                label: 'Paid Amount',
+                data: royaltyData.map(r => r.paid_amount),
+                borderColor: 'rgb(54, 162, 235)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Royalty Earnings by Book'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + value;
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+{% endif %}
+</script>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart - CanoBookHub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Shopping Cart</h1>
+    
+    {% if cart_items %}
+        <div class="row">
+            <div class="col-md-8">
+                {% for item in cart_items %}
+                <div class="card mb-3">
+                    <div class="row g-0">
+                        <div class="col-md-2">
+                            <img src="{{ url_for('static', filename='uploads/' + item.book.cover_image) if item.book.cover_image else 'https://via.placeholder.com/100x150?text=No+Cover' }}" 
+                                 class="img-fluid rounded-start" alt="{{ item.book.title }}">
+                        </div>
+                        <div class="col-md-10">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <h5 class="card-title">{{ item.book.title }}</h5>
+                                        <p class="card-text text-muted">{{ item.book.author.full_name if item.book.author else 'Unknown Author' }}</p>
+                                        <p class="card-text"><strong>₹{{ item.book.price }}</strong></p>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <div class="mb-2">
+                                            <strong>Quantity: {{ item.quantity }}</strong>
+                                        </div>
+                                        <div class="mb-2">
+                                            <strong>Total: ₹{{ item.quantity * item.book.price }}</strong>
+                                        </div>
+                                        <a href="{{ url_for('remove_from_cart', item_id=item.id) }}" class="btn btn-danger btn-sm">Remove</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="text-center bg-warning text-dark py-2 rounded">Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Subtotal:</span>
+                            <span>₹{{ total }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Shipping:</span>
+                            <span>Free</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <strong>Total:</strong>
+                            <strong>₹{{ total }}</strong>
+                        </div>
+                        <a href="{{ url_for('checkout') }}" class="btn btn-primary w-100">Proceed to Checkout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-shopping-cart fa-5x text-muted mb-3"></i>
+            <h3 class="tf-bold">Your cart is empty</h3>
+            <p>Add some books to your cart to continue shopping.</p>
+            <a href="{{ url_for('books') }}" class="btn btn-primary">Browse Books</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

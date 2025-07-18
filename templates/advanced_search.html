@@ -1,0 +1,195 @@
+
+{% extends "base.html" %}
+
+{% block title %}Advanced Search{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Search Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Advanced Search</h2>
+            {% if query %}
+                <p class="text-muted">Search results for: <strong>"{{ query }}"</strong></p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Advanced Search Form -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('advanced_search') }}">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Search Term</label>
+                                <input type="text" class="form-control" name="q" value="{{ query or '' }}" placeholder="Search books...">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Category</label>
+                                <select class="form-select" name="category">
+                                    <option value="">All Categories</option>
+                                    {% for cat in categories %}
+                                    <option value="{{ cat.id }}" {{ 'selected' if category == cat.id else '' }}>{{ cat.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Exam Type</label>
+                                <select class="form-select" name="exam_type">
+                                    <option value="">All Exams</option>
+                                    {% for exam in exam_types %}
+                                    <option value="{{ exam }}" {{ 'selected' if exam_type == exam else '' }}>{{ exam }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Language</label>
+                                <select class="form-select" name="language">
+                                    <option value="">All Languages</option>
+                                    {% for lang in languages %}
+                                    <option value="{{ lang }}" {{ 'selected' if language == lang else '' }}>{{ lang }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Sort By</label>
+                                <select class="form-select" name="sort">
+                                    <option value="relevance" {{ 'selected' if sort == 'relevance' else '' }}>Relevance</option>
+                                    <option value="newest" {{ 'selected' if sort == 'newest' else '' }}>Newest</option>
+                                    <option value="popular" {{ 'selected' if sort == 'popular' else '' }}>Popular</option>
+                                    <option value="price_low" {{ 'selected' if sort == 'price_low' else '' }}>Price: Low to High</option>
+                                    <option value="price_high" {{ 'selected' if sort == 'price_high' else '' }}>Price: High to Low</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Filters -->
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-2">
+                                <label class="form-label">Min Price</label>
+                                <input type="number" class="form-control" name="min_price" value="{{ min_price or '' }}" placeholder="₹0">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Max Price</label>
+                                <input type="number" class="form-control" name="max_price" value="{{ max_price or '' }}" placeholder="₹10000">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Min Rating</label>
+                                <select class="form-select" name="min_rating">
+                                    <option value="">Any Rating</option>
+                                    <option value="4" {{ 'selected' if min_rating == 4 else '' }}>4+ Stars</option>
+                                    <option value="3" {{ 'selected' if min_rating == 3 else '' }}>3+ Stars</option>
+                                    <option value="2" {{ 'selected' if min_rating == 2 else '' }}>2+ Stars</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-check mt-4">
+                                    <input class="form-check-input" type="checkbox" name="in_stock" value="true" {{ 'checked' if in_stock else '' }}>
+                                    <label class="form-check-label">In Stock Only</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary me-2">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                                <a href="{{ url_for('advanced_search') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times"></i> Clear
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    <div class="row">
+        <div class="col-12">
+            {% if books.items %}
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <p class="text-muted mb-0">
+                        Showing {{ books.total }} result(s)
+                    </p>
+                </div>
+
+                <div class="row g-4">
+                    {% for book in books.items %}
+                    <div class="col-md-3">
+                        <div class="card book-card h-100">
+                            <img src="{{ url_for('static', filename='uploads/' + book.cover_image) if book.cover_image else 'https://via.placeholder.com/200x300?text=No+Cover' }}" 
+                                 class="card-img-top" alt="{{ book.title }}" style="height: 250px; object-fit: cover;">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title">{{ book.title }}</h6>
+                                <p class="card-text text-muted small">{{ book.author.full_name if book.author else 'Unknown Author' }}</p>
+                                <p class="card-text"><strong>₹{{ book.price }}</strong></p>
+                                
+                                <div class="mb-2">
+                                    {% for i in range(5) %}
+                                        {% if i < book.avg_rating %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-warning"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <small class="text-muted">({{ book.total_reviews }})</small>
+                                </div>
+                                
+                                <div class="mt-auto">
+                                    <a href="{{ url_for('book_detail', book_id=book.id) }}" class="btn btn-primary btn-sm w-100">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if books.pages > 1 %}
+                <nav aria-label="Search results pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if books.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('advanced_search', page=books.prev_num, **request.args) }}">Previous</a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for page_num in books.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != books.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('advanced_search', page=page_num, **request.args) }}">{{ page_num }}</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                {% endif %}
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if books.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('advanced_search', page=books.next_num, **request.args) }}">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No books found</h5>
+                    <p class="text-muted">Try adjusting your search criteria</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

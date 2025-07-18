@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}{{ book.title }} - CanoBookHub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-4">
+            <img src="{% if book.cover_image and (book.cover_image.startswith('http') or book.cover_image.startswith('https')) %}{{ book.cover_image }}{% elif book.cover_image %}{{ url_for('static', filename='uploads/' + book.cover_image) }}{% else %}https://via.placeholder.com/400x600?text=No+Cover{% endif %}"
+                 class="img-fluid rounded" alt="{{ book.title }}">
+        </div>
+        <div class="col-md-8">
+            <h1>{{ book.title }}</h1>
+            <p class="text-muted">by {{ book.author.full_name if book.author else 'Unknown Author' }}</p>
+
+            {% if book.exam_type %}
+                <span class="badge bg-primary mb-3">{{ book.exam_type }}</span>
+            {% endif %}
+
+            <div class="mb-3">
+                <span class="h3 text-primary">₹{{ book.price }}</span>
+                {% if book.wholesale_price and current_user.is_authenticated and current_user.role == 'vendor' %}
+                    <span class="text-muted">(Wholesale: ₹{{ book.wholesale_price }})</span>
+                {% endif %}
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        {% if book.isbn %}<li><strong>ISBN:</strong> {{ book.isbn }}</li>{% endif %}
+                        {% if book.pages %}<li><strong>Pages:</strong> {{ book.pages }}</li>{% endif %}
+                        {% if book.edition %}<li><strong>Edition:</strong> {{ book.edition }}</li>{% endif %}
+                        {% if book.publisher_name %}<li><strong>Publisher:</strong> {{ book.publisher_name }}</li>{% endif %}
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        {% if book.subject %}<li><strong>Subject:</strong> {{ book.subject }}</li>{% endif %}
+                        <li><strong>Stock:</strong> {{ book.stock }} available</li>
+                        <li><strong>Rating:</strong> 
+                            {% for i in range(5) %}
+                                {% if i < avg_rating %}
+                                    <i class="fas fa-star text-warning"></i>
+                                {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                {% endif %}
+                            {% endfor %}
+                            ({{ avg_rating }}/5)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            {% if current_user.is_authenticated and book.stock > 0 %}
+                <div class="mb-3">
+                    <a href="{{ url_for('add_to_cart', book_id=book.id) }}" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-cart-plus"></i> Add to Cart
+                    </a>
+                    <a href="{{ url_for('checkout') }}" class="btn btn-success btn-lg">
+                        <i class="fas fa-bolt"></i> Buy Now
+                    </a>
+                </div>
+            {% elif book.stock == 0 %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> Out of Stock
+                </div>
+            {% endif %}
+
+            {% if book.description %}
+                <div class="mt-4">
+                    <h4>Description</h4>
+                    <p>{{ book.description }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3>Reviews</h3>
+
+            {% if current_user.is_authenticated %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5>Write a Review</h5>
+                        <form method="POST" action="{{ url_for('review_book', book_id=book.id) }}">
+                            <div class="mb-3">
+                                <label class="form-label">Rating</label>
+                                <select name="rating" class="form-select" required>
+                                    <option value="">Select Rating</option>
+                                    <option value="5">5 Stars</option>
+                                    <option value="4">4 Stars</option>
+                                    <option value="3">3 Stars</option>
+                                    <option value="2">2 Stars</option>
+                                    <option value="1">1 Star</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Comment</label>
+                                <textarea name="comment" class="form-control" rows="3" placeholder="Write your review..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% for review in reviews %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h6>{{ review.user.full_name }}</h6>
+                            <div>
+                                {% for i in range(5) %}
+                                    {% if i < review.rating %}
+                                        <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-warning"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <p class="mt-2">{{ review.comment }}</p>
+                        <small class="text-muted">{{ review.created_at.strftime('%B %d, %Y') }}</small>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+        <!-- Recommendations Section -->
+    {% if recommendations %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3>Recommended Books</h3>
+            <div class="row">
+                {% for recommended_book in recommendations %}
+                <div class="col-md-3 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='uploads/' + recommended_book.cover_image) if recommended_book.cover_image else 'https://via.placeholder.com/200x300?text=No+Cover' }}" class="card-img-top" alt="{{ recommended_book.title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ recommended_book.title }}</h5>
+                            <p class="card-text">by {{ recommended_book.author.full_name if recommended_book.author else 'Unknown Author' }}</p>
+                            <a href="{{ url_for('book_detail', book_id=recommended_book.id) }}" class="btn btn-sm btn-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if current_user.is_authenticated and book.stock > 0 %}
+        <div class="mb-3">
+            <a href="{{ url_for('add_to_cart', book_id=book.id) }}" class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-cart-plus"></i> Add to Cart
+            </a>
+            
+            {% if in_wishlist %}
+                <a href="{{ url_for('remove_from_wishlist', book_id=book.id) }}" class="btn btn-outline-danger btn-lg">
+                    <i class="fas fa-heart"></i> Remove from Wishlist
+                </a>
+            {% else %}
+                <a href="{{ url_for('add_to_wishlist', book_id=book.id) }}" class="btn btn-outline-primary btn-lg">
+                    <i class="far fa-heart"></i> Add to Wishlist
+                </a>
+            {% endif %}
+
+            <a href="{{ url_for('checkout') }}" class="btn btn-success btn-lg">
+                <i class="fas fa-bolt"></i> Buy Now
+            </a>
+        </div>
+    {% elif book.stock == 0 %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> Out of Stock
+        </div>
+    {% endif %}
+
+    <!-- Reviews Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3>Reviews</h3>
+
+            {% if current_user.is_authenticated and current_user.role == 'student' %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5>Write a Review</h5>
+                        <form method="POST" action="{{ url_for('review_book', book_id=book.id) }}">
+                            <div class="mb-3">
+                                <label class="form-label">Rating</label>
+                                <select name="rating" class="form-select" required>
+                                    <option value="">Select Rating</option>
+                                    <option value="5">5 Stars</option>
+                                    <option value="4">4 Stars</option>
+                                    <option value="3">3 Stars</option>
+                                    <option value="2">2 Stars</option>
+                                    <option value="1">1 Star</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Comment</label>
+                                <textarea name="comment" class="form-control" rows="3" placeholder="Write your review..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% for review in reviews %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h6>{{ review.user.full_name }}</h6>
+                            <div>
+                                {% for i in range(5) %}
+                                    {% if i < review.rating %}
+                                        <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-warning"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <p class="mt-2">{{ review.comment }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ review.created_at.strftime('%B %d, %Y') }}</small>
+
+                            {% if current_user.is_authenticated and current_user.id != review.user_id %}
+                                <a href="{{ url_for('mark_review_helpful', review_id=review.id) }}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-thumbs-up"></i> Helpful
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

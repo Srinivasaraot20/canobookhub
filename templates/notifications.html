@@ -1,0 +1,114 @@
+
+{% extends "base.html" %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-bell"></i> Notifications</h2>
+                {% if notifications %}
+                <form method="POST" action="{{ url_for('mark_all_notifications_read') }}" style="display:inline;">
+                    <button class="btn btn-outline-primary" type="submit">
+                        <i class="fas fa-check-double"></i> Mark All as Read
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+
+            {% if notifications %}
+                <div class="list-group">
+                    {% for notification in notifications %}
+                    <div class="list-group-item {{ 'list-group-item-info border-start border-4 border-primary' if not notification.is_read else 'list-group-item-light' }}" id="notification-{{ notification.id }}">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">
+                                {% if notification.notification_type == 'order' %}
+                                    <i class="fas fa-shopping-cart text-success"></i>
+                                {% elif notification.notification_type == 'review' %}
+                                    <i class="fas fa-star text-warning"></i>
+                                {% elif notification.notification_type == 'system' %}
+                                    <i class="fas fa-cog text-info"></i>
+                                {% else %}
+                                    <i class="fas fa-bell text-primary"></i>
+                                {% endif %}
+                                {{ notification.title }}
+                                {% if not notification.is_read %}<span class="badge bg-primary ms-2">Unread</span>{% endif %}
+                            </h6>
+                            <small class="text-muted">{{ notification.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                        </div>
+                        <p class="mb-1">{{ notification.message }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if notification.order_id %}
+                                    <a href="{{ url_for('order_detail', order_id=notification.order_id) }}" class="btn btn-sm btn-outline-primary">
+                                        View Order
+                                    </a>
+                                {% endif %}
+                                {% if notification.book_id %}
+                                    <a href="{{ url_for('book_detail', book_id=notification.book_id) }}" class="btn btn-sm btn-outline-primary">
+                                        View Book
+                                    </a>
+                                {% endif %}
+                            </div>
+                            {% if not notification.is_read %}
+                            <form method="POST" action="{{ url_for('mark_notification_read', notification_id=notification.id) }}" style="display:inline;">
+                                <button class="btn btn-sm btn-outline-secondary">Mark Read</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No notifications yet</h5>
+                    <p class="text-muted">You'll see order updates and system notifications here</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+const currentUserId = {{ current_user.id }};
+const socket = io('/notifications');
+socket.on('new_review_notification', function(data) {
+    if (data.user_id === currentUserId) {
+        // Show a toast or prepend to the notification list
+        const notificationList = document.querySelector('.list-group');
+        if (notificationList) {
+            const item = document.createElement('div');
+            item.className = 'list-group-item list-group-item-primary';
+            item.innerHTML = `
+                <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1"><i class="fas fa-star text-warning"></i> ${data.title}</h6>
+                    <small class="text-muted">${data.created_at}</small>
+                </div>
+                <p class="mb-1">${data.message}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <a href="/book/${data.book_id}" class="btn btn-sm btn-outline-primary">View Book</a>
+                    </div>
+                </div>
+            `;
+            notificationList.prepend(item);
+        }
+        // Optionally, show a toast popup
+        if (window.bootstrap) {
+            const toast = document.createElement('div');
+            toast.className = 'toast align-items-center text-bg-primary border-0 show';
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.right = '20px';
+            toast.innerHTML = `<div class="d-flex"><div class="toast-body">${data.title}<br>${data.message}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 7000);
+        }
+    }
+});
+</script>
+{% endblock %}

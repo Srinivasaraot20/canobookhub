@@ -1,0 +1,398 @@
+
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Analytics Dashboard</h2>
+            <div class="btn-group" role="group">
+                <a href="{{ url_for('analytics_dashboard', days=7) }}" class="btn btn-outline-primary {{ 'active' if days == 7 else '' }}">7 Days</a>
+                <a href="{{ url_for('analytics_dashboard', days=30) }}" class="btn btn-outline-primary {{ 'active' if days == 30 else '' }}">30 Days</a>
+                <a href="{{ url_for('analytics_dashboard', days=90) }}" class="btn btn-outline-primary {{ 'active' if days == 90 else '' }}">90 Days</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row g-4">
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Page Views</h6>
+                            <h3>{{ page_views }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-eye fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Book Views</h6>
+                            <h3>{{ book_views }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-book fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Orders</h6>
+                            <h3>{{ recent_orders }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-shopping-cart fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Revenue</h6>
+                            <h3>₹{{ "%.2f"|format(total_revenue) }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-rupee-sign fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold text-info mb-0">Daily Sales Trend</h4>
+                <div>
+                    <select id="salesFilterType" class="form-select d-inline-block w-auto me-2">
+                        <option value="all">All</option>
+                        <option value="vendor">By Vendor</option>
+                        <option value="category">By Category</option>
+                        <option value="book">By Book</option>
+                    </select>
+                    <select id="salesFilterValue" class="form-select d-inline-block w-auto me-2 d-none"></select>
+                    <select id="salesDateRange" class="form-select d-inline-block w-auto">
+                        <option value="7">Last 7 Days</option>
+                        <option value="30">Last 30 Days</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    <input type="date" id="customStart" class="form-control d-none w-auto" />
+                    <input type="date" id="customEnd" class="form-control d-none w-auto" />
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header bg-dark">
+                    <h5 class="text-info mb-0">Daily Sales Trend</h5>
+                </div>
+                <div class="card-body bg-dark">
+                    <canvas id="salesChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Top Books</h5>
+                </div>
+                <div class="card-body">
+                    {% for book, views in popular_books %}
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-truncate">{{ book[:30] }}...</span>
+                        <span class="badge bg-primary">{{ views }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popular Searches and Export -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="text-dark text-center mb-0"><i class="fas fa-search text-primary"></i> Popular Searches</h5>
+                    <button class="btn btn-outline-secondary btn-sm" id="exportSearchesBtn"><i class="fas fa-download"></i> Export</button>
+                </div>
+                <div class="card-body">
+                    <form class="row g-2 mb-3" id="searchDateForm">
+                        <div class="col-auto">
+                            <label for="searchStartDate" class="form-label mb-0">From</label>
+                            <input type="date" class="form-control" id="searchStartDate" name="start_date">
+                        </div>
+                        <div class="col-auto">
+                            <label for="searchEndDate" class="form-label mb-0">To</label>
+                            <input type="date" class="form-control" id="searchEndDate" name="end_date">
+                        </div>
+                        <div class="col-auto align-self-end">
+                            <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+                        </div>
+                    </form>
+                    <canvas id="popularSearchesChart" height="180"></canvas>
+                    <div class="mt-4">
+                        {% for search, count, trend in popular_searches %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>{{ search }}</span>
+                            <span>
+                                <span class="badge bg-secondary me-2">{{ count }}</span>
+                                {% if trend == 'up' %}
+                                    <i class="fas fa-arrow-up text-success"></i>
+                                {% elif trend == 'down' %}
+                                    <i class="fas fa-arrow-down text-danger"></i>
+                                {% else %}
+                                    <i class="fas fa-minus text-muted"></i>
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="text-dark text-center">Export Data</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('export_data', data_type='books') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-download"></i> Export Books
+                        </a>
+                        <a href="{{ url_for('export_data', data_type='orders') }}" class="btn btn-outline-success">
+                            <i class="fas fa-download"></i> Export Orders
+                        </a>
+                        <a href="{{ url_for('export_data', data_type='users') }}" class="btn btn-outline-info">
+                            <i class="fas fa-download"></i> Export Users
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>      
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Placeholder: These should be provided by your backend
+const vendors = window.vendors || [];
+const categories = window.categories || [];
+const books = window.books || [];
+
+const ctx = document.getElementById('salesChart').getContext('2d');
+let salesData = {{ daily_sales | tojson }};
+
+function getChartData(data) {
+    return {
+        labels: data.map(d => d.date),
+        datasets: [
+            {
+                label: 'Orders',
+                data: data.map(d => d.orders ?? 0),
+                borderColor: '#00d4ff',
+                backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                tension: 0.4
+            },
+            {
+                label: 'Revenue',
+                data: data.map(d => d.revenue ?? 0),
+                borderColor: '#00ff88',
+                backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                tension: 0.4,
+                yAxisID: 'y1'
+            }
+        ]
+    };
+}
+const chart = new Chart(ctx, {
+    type: 'line',
+    data: getChartData(salesData),
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                labels: { color: '#fff', font: { weight: 'bold', size: 14 } }
+            },
+            tooltip: {
+                enabled: true,
+                callbacks: {
+                    label: function(context) {
+                        return `${context.dataset.label}: ${context.parsed.y}`;
+                    }
+                }
+            },
+            title: {
+                display: true,
+                text: 'Daily Sales Trend',
+                color: '#fff',
+                font: { size: 20, weight: 'bold' }
+            }
+        },
+        scales: {
+            x: {
+                title: { display: true, text: 'Date', color: '#fff', font: { weight: 'bold' } },
+                ticks: { color: '#fff' },
+                grid: { color: '#333' }
+            },
+            y: {
+                title: { display: true, text: 'Orders', color: '#fff', font: { weight: 'bold' } },
+                ticks: { color: '#fff' },
+                grid: { color: '#333' }
+            },
+            y1: {
+                title: { display: true, text: 'Revenue', color: '#fff', font: { weight: 'bold' } },
+                ticks: { color: '#fff' },
+                grid: { drawOnChartArea: false, color: '#333' }
+            }
+        }
+    }
+});
+
+// --- Filter Interactivity ---
+const filterType = document.getElementById('salesFilterType');
+const filterValue = document.getElementById('salesFilterValue');
+const dateRange = document.getElementById('salesDateRange');
+const customStart = document.getElementById('customStart');
+const customEnd = document.getElementById('customEnd');
+
+filterType.addEventListener('change', function() {
+    filterValue.classList.add('d-none');
+    filterValue.innerHTML = '';
+    if (this.value === 'vendor') {
+        vendors.forEach(v => filterValue.innerHTML += `<option value="${v}">${v}</option>`);
+        filterValue.classList.remove('d-none');
+    } else if (this.value === 'category') {
+        categories.forEach(c => filterValue.innerHTML += `<option value="${c}">${c}</option>`);
+        filterValue.classList.remove('d-none');
+    } else if (this.value === 'book') {
+        books.forEach(b => filterValue.innerHTML += `<option value="${b}">${b}</option>`);
+        filterValue.classList.remove('d-none');
+    }
+    updateChart();
+});
+
+dateRange.addEventListener('change', function() {
+    if (this.value === 'custom') {
+        customStart.classList.remove('d-none');
+        customEnd.classList.remove('d-none');
+    } else {
+        customStart.classList.add('d-none');
+        customEnd.classList.add('d-none');
+        updateChart();
+    }
+});
+
+customStart.addEventListener('change', updateChart);
+customEnd.addEventListener('change', updateChart);
+filterValue.addEventListener('change', updateChart);
+
+function updateChart() {
+    // Placeholder: Replace with your backend API endpoint
+    // Example: /api/sales_data?range=7&filter_type=vendor&filter_value=VendorName
+    let range = dateRange.value;
+    let type = filterType.value;
+    let value = filterValue.value;
+    let start = customStart.value;
+    let end = customEnd.value;
+    let url = `/api/sales_data?range=${range}`;
+    if (type !== 'all' && value) url += `&filter_type=${type}&filter_value=${encodeURIComponent(value)}`;
+    if (range === 'custom' && start && end) url += `&start=${start}&end=${end}`;
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            chart.data = getChartData(data);
+            chart.update();
+        });
+}
+
+let popularSearches = {{ popular_searches|tojson }};
+let searchLabels = popularSearches.map(item => item[0]);
+let searchCounts = popularSearches.map(item => item[1]);
+let searchTrends = popularSearches.map(item => item[2] || 'same');
+const ctxSearch = document.getElementById('popularSearchesChart').getContext('2d');
+let searchChart = new Chart(ctxSearch, {
+    type: 'bar',
+    data: {
+        labels: searchLabels,
+        datasets: [{
+            label: 'Search Frequency',
+            data: searchCounts,
+            backgroundColor: 'rgba(0,123,255,0.7)',
+            borderColor: '#007bff',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: { enabled: true }
+        },
+        scales: {
+            x: { title: { display: true, text: 'Search Query' } },
+            y: { title: { display: true, text: 'Frequency' }, beginAtZero: true }
+        }
+    }
+});
+
+document.getElementById('exportSearchesBtn').onclick = function() {
+    let csv = 'Search,Count\n';
+    for (let i = 0; i < searchLabels.length; i++) {
+        csv += `"${searchLabels[i]}",${searchCounts[i]}\n`;
+    }
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'popular_searches.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+};
+
+document.getElementById('searchDateForm').onsubmit = function(e) {
+    e.preventDefault();
+    const start = document.getElementById('searchStartDate').value;
+    const end = document.getElementById('searchEndDate').value;
+    fetch(`/admin/popular_searches_data?start_date=${start}&end_date=${end}`)
+        .then(res => res.json())
+        .then(data => {
+            searchLabels = data.map(item => item.search);
+            searchCounts = data.map(item => item.count);
+            searchTrends = data.map(item => item.trend);
+            searchChart.data.labels = searchLabels;
+            searchChart.data.datasets[0].data = searchCounts;
+            searchChart.update();
+            const listDiv = document.querySelector('.card-body .mt-4');
+            listDiv.innerHTML = '';
+            data.forEach(item => {
+                let trendIcon = '<i class="fas fa-minus text-muted"></i>';
+                if (item.trend === 'up') trendIcon = '<i class="fas fa-arrow-up text-success"></i>';
+                else if (item.trend === 'down') trendIcon = '<i class="fas fa-arrow-down text-danger"></i>';
+                listDiv.innerHTML += `<div class="d-flex justify-content-between align-items-center mb-2"><span>${item.search}</span><span><span class="badge bg-secondary me-2">${item.count}</span>${trendIcon}</span></div>`;
+            });
+        });
+};
+</script>
+{% endblock %}

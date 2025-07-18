@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Contact Us - CanoBookHub{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row mb-4">
+    <div class="col text-center">
+      <h1 class="display-4 fw-bold mb-3"><i class="fas fa-envelope-open-text text-primary"></i> Contact Us</h1>
+      <p class="lead">We’d love to hear from you! Reach out to us using any of the methods below.</p>
+    </div>
+  </div>
+  <div class="row g-4 mb-4">
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body text-center">
+          <i class="fas fa-envelope fa-2x text-info mb-2"></i>
+          <h5 class="card-title">Email</h5>
+          <p><a href="mailto:support@canobookhub.com">support@canobookhub.com</a></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body text-center">
+          <i class="fas fa-phone fa-2x text-success mb-2"></i>
+          <h5 class="card-title">Phone</h5>
+          <p>+91 9876543210 (10am–6pm IST)</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body text-center">
+          <i class="fas fa-map-marker-alt fa-2x text-danger mb-2"></i>
+          <h5 class="card-title">Address</h5>
+          <p>123, Knowledge Avenue, Bengaluru, Karnataka, India</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mb-4">
+    <div class="col-md-8 mx-auto">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h4 class="card-title mb-3"><i class="fas fa-paper-plane text-primary"></i> Contact Form</h4>
+          <form method="post" action="/contact">
+            <div class="mb-3">
+              <label for="name" class="form-label">Name</label>
+              <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="mb-3">
+              <label for="message" class="form-label">Message</label>
+              <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Send Message</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mb-4">
+    <div class="col text-center">
+      <h4 class="mb-3"><i class="fas fa-hashtag text-info"></i> Social Media</h4>
+      <a href="#" class="btn btn-outline-primary mx-1"><i class="fab fa-facebook-f"></i> Facebook</a>
+      <a href="#" class="btn btn-outline-info mx-1"><i class="fab fa-twitter"></i> Twitter</a>
+      <a href="#" class="btn btn-outline-danger mx-1"><i class="fab fa-instagram"></i> Instagram</a>
+    </div>
+  </div>
+</div>
+{% endblock %} 

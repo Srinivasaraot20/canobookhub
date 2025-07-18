@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Authors - CanoBookHub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="text-center mb-5">Our Authors</h1>
+    
+    <div class="row g-4">
+        {% for author in authors %}
+        <div class="col-md-4">
+            <div class="card author-card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-circle fa-4x text-primary mb-3"></i>
+                    <h5 class="card-title">{{ author.full_name }}</h5>
+                    <p class="text-muted">{{ author.books|length }} books published</p>
+                    <a href="{{ url_for('author_detail', author_id=author.id) }}" class="btn btn-primary">View Profile</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

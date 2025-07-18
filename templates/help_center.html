@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Help Center - CanoBookHub{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row mb-4">
+    <div class="col text-center">
+      <h1 class="display-4 fw-bold mb-3"><i class="fas fa-question-circle text-primary"></i> Help Center</h1>
+      <p class="lead">Welcome to the CanoBookHub Help Center. Here you’ll find answers to common questions and helpful guides.</p>
+    </div>
+  </div>
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-info-circle text-info"></i> Frequently Asked Questions</h5>
+          <ul class="mb-0">
+            <li><strong>How do I track my order?</strong> Log in and go to your Order History page to view tracking details.</li>
+            <li><strong>How do I reset my password?</strong> Click “Forgot Password” on the login page and follow the instructions.</li>
+            <li><strong>How do I contact support?</strong> Visit our <a href="/support">Support</a> page for all contact options.</li>
+            <li><strong>How do I request a refund?</strong> Contact us within 7 days of delivery for refund requests.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-book-reader text-success"></i> User Guides</h5>
+          <ul class="mb-0">
+            <li><a href="#">How to place an order</a></li>
+            <li><a href="#">How to update your profile</a></li>
+            <li><a href="#">How to use wishlists</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mt-4">
+    <div class="col text-center">
+      <h5 class="mb-3"><i class="fas fa-headset text-primary"></i> Still need help?</h5>
+      <p>Contact our support team at <a href="mailto:support@canobookhub.com">support@canobookhub.com</a> or call +91 9876543210.</p>
+    </div>
+  </div>
+</div>
+{% endblock %} 

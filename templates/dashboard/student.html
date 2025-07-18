@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard - CanoBookHub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Student Dashboard</h1>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-shopping-cart fa-3x text-primary mb-3"></i>
+                    <h3>{{ student_orders|length }}</h3>
+                    <p class="text-muted">Total Orders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-book fa-3x text-success mb-3"></i>
+                    <h3>
+                        {% set total_books = 0 %}
+                        {% for order in student_orders %}
+                            {% set total_books = total_books + order.items|length %}
+                        {% endfor %}
+                        {{ total_books }}
+                    </h3>
+                    <p class="text-muted">Books Purchased</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-dollar-sign fa-3x text-info mb-3"></i>
+                    <h3>₹{{ student_orders|sum(attribute='total_amount') }}</h3>
+                    <p class="text-muted">Total Spent</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="text-dark" >Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('books') }}" class="btn btn-primary">
+                            <i class="fas fa-book"></i> Browse Books
+                        </a>
+                        <a href="{{ url_for('cart') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-shopping-cart"></i> View Cart
+                        </a>
+                        <a href="{{ url_for('books', exam_type='UPSC') }}" class="btn btn-outline-info">
+                            <i class="fas fa-graduation-cap"></i> UPSC Books
+                        </a>
+                        <a href="{{ url_for('books', exam_type='JEE') }}" class="btn btn-outline-success">
+                            <i class="fas fa-calculator"></i> JEE Books
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Removed Exam Categories card -->
+    </div>
+
+    <!-- Order History -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="text-dark">Order History</h5>
+        </div>
+        <div class="card-body">
+            {% if student_orders %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Order Number</th>
+                                <th>Date</th>
+                                <th>Items</th>
+                                <th>Total Amount</th>
+                                <th>Status</th>
+                                <th>Payment Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in student_orders %}
+                            <tr>
+                                <td>{{ order.order_number }}</td>
+                                <td>{{ order.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ order.items|length }} items</td>
+                                <td>₹{{ order.total_amount }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if order.status == 'delivered' else 'warning' }}">
+                                        {{ order.status.title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if order.payment_status == 'paid' else 'warning' }}">
+                                        {{ order.payment_status.title() }}
+                                    </span>
+                                </td>
+                                {% if order.payment_status == 'pending' %}
+                                  <td>
+                                    <button class="btn btn-success" onclick="payWithRazorpay('{{ order.id }}', '{{ order.total_amount }}')">Pay Now</button>
+                                  </td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No orders yet. <a href="{{ url_for('books') }}">Start shopping</a></p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- My Reviews Section -->
+    <div class="card mt-5" id="my-reviews">
+        <div class="card-header">
+            <h5 class="fw-bold text-dark">My Reviews</h5>
+        </div>
+        <div class="card-body">
+            {% if my_reviews and my_reviews|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Book Title</th>
+                                <th>Rating</th>
+                                <th>Comment</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for review in my_reviews %}
+                            <tr>
+                                <td>{{ review.book.title }}</td>
+                                <td>
+                                    {% for i in range(review.rating) %}★{% endfor %}
+                                    {% for i in range(5 - review.rating) %}<span class="text-muted">★</span>{% endfor %}
+                                </td>
+                                <td>{{ review.comment }}</td>
+                                <td>{{ review.created_at.strftime('%Y-%m-%d') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">You have not submitted any reviews yet.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- All Available Books Section -->
+    <div class="card mt-5">
+        <div class="card-header">
+            <h5 class="fw-bold text-dark">All Available Books</h5>
+        </div>
+        <div class="card-body">
+            {% if all_books %}
+                <div class="row g-4">
+                    {% for book in all_books %}
+                    <div class="col-md-4">
+                        <div class="card book-card h-100">
+                            <img src="{{ url_for('static', filename='uploads/' + book.cover_image) if book.cover_image else 'https://via.placeholder.com/200x300?text=No+Cover' }}" class="card-img-top" alt="{{ book.title }}">
+                            <div class="card-body">
+                                <h6 class="card-title">{{ book.title }}</h6>
+                                <p class="card-text text-muted">{{ book.author.full_name if book.author else 'Unknown Author' }}</p>
+                                <p class="card-text"><strong>₹{{ book.price }}</strong></p>
+                                <a href="{{ url_for('book_detail', book_id=book.id) }}" class="btn btn-outline-primary btn-sm">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">No books available.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+function payWithRazorpay(orderId, amount) {
+  fetch('/create_razorpay_order', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ order_id: orderId, amount: amount })
+  })
+  .then(response => response.json())
+  .then(data => {
+    var options = {
+      "key": data.razorpay_key,
+      "amount": data.amount, // in paise
+      "currency": "INR",
+      "name": "CanoBookHub",
+      "description": "Order Payment",
+      "order_id": data.razorpay_order_id,
+      "handler": function (response){
+        // Send payment info to backend for verification and update
+        fetch('/verify_razorpay_payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            order_id: orderId,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_signature: response.razorpay_signature
+          })
+        })
+        .then(res => res.json())
+        .then(result => {
+          if(result.success){
+            window.location.reload();
+          } else {
+            alert('Payment failed!');
+          }
+        });
+      }
+    };
+    var rzp = new Razorpay(options);
+    rzp.open();
+  });
+}
+</script>
+{% endblock %}
